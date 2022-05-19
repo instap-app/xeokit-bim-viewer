@@ -1,4 +1,4 @@
-import {Map} from "./Map.js";
+import { Map } from "./Map.js";
 
 /** @private */
 class Controller {
@@ -293,4 +293,4 @@ class Controller {
     }
 }
 
-export {Controller};
+export { Controller };

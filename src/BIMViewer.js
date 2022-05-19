@@ -1,30 +1,31 @@
 import {
-    Viewer,
     BCFViewpointsPlugin,
-    math,
-    FastNavPlugin
+    FastNavPlugin,
+    Viewer,
+    math
 } from "@xeokit/xeokit-sdk/dist/xeokit-sdk.es.js";
 
-import {Controller} from "./Controller.js";
-import {BusyModal} from "./BusyModal.js";
-import {ResetAction} from "./toolbar/ResetAction.js";
-import {FitAction} from "./toolbar/FitAction.js";
-import {FirstPersonMode} from "./toolbar/FirstPersonMode.js";
-import {HideTool} from "./toolbar/HideTool.js";
-import {SelectionTool} from "./toolbar/SelectionTool.js";
-import {QueryTool} from "./toolbar/QueryTool.js";
-import {SectionTool} from "./toolbar/SectionTool.js";
-import {NavCubeMode} from "./toolbar/NavCubeMode.js";
-
-import {ModelsExplorer} from "./explorer/ModelsExplorer.js";
-import {ObjectsExplorer} from "./explorer/ObjectsExplorer.js";
-import {ClassesExplorer} from "./explorer/ClassesExplorer.js";
-import {StoreysExplorer} from "./explorer/StoreysExplorer.js";
-
-import {ThreeDMode} from "./toolbar/ThreeDMode.js";
-import {ObjectContextMenu} from "./contextMenus/ObjectContextMenu.js";
-import {CanvasContextMenu} from "./contextMenus/CanvasContextMenu.js";
-import {OrthoMode} from "./toolbar/OrthoMode.js";
+import { BusyModal } from "./BusyModal.js";
+import { CanvasContextMenu } from "./contextMenus/CanvasContextMenu.js";
+import { ClassesExplorer } from "./explorer/ClassesExplorer.js";
+import { Controller } from "./Controller.js";
+import { FirstPersonMode } from "./toolbar/FirstPersonMode.js";
+import { FitAction } from "./toolbar/FitAction.js";
+import { FullscreenMode } from "./toolbar/FullscreenMode.js";
+import { HideTool } from "./toolbar/HideTool.js";
+import { ModelsExplorer } from "./explorer/ModelsExplorer.js";
+import { NavCubeMode } from "./toolbar/NavCubeMode.js";
+import { NavigateToInstap } from "./toolbar/NavigateToInstap";
+import { ObjectContextMenu } from "./contextMenus/ObjectContextMenu.js";
+import { ObjectsExplorer } from "./explorer/ObjectsExplorer.js";
+import { OrthoMode } from "./toolbar/OrthoMode.js";
+import { QueryTool } from "./toolbar/QueryTool.js";
+import { ResetAction } from "./toolbar/ResetAction.js";
+import { SectionTool } from "./toolbar/SectionTool.js";
+import { SelectionTool } from "./toolbar/SelectionTool.js";
+import { StoreysExplorer } from "./explorer/StoreysExplorer.js";
+import { ThreeDMode } from "./toolbar/ThreeDMode.js";
+import { Toggle } from "./toolbar/Toggle";
 
 function createExplorerTemplate(cfg, viewer) {
     function translate(key, fallback) {
@@ -62,14 +63,14 @@ function createExplorerTemplate(cfg, viewer) {
             <div class="xeokit-classes xeokit-tree-panel" ></div>
         </div>
     </div>
-     <div class="xeokit-tab xeokit-storeysTab">
+    <div class="xeokit-tab xeokit-storeysTab">
         <a class="xeokit-i18n xeokit-tab-btn disabled" href="#" data-xeokit-i18n="storeysExplorer.title">Storeys</a>
         <div class="xeokit-tab-content">
-         <div class="xeokit-btn-group">
-                <button type="button" class="xeokit-i18n xeokit-showAllStoreys xeokit-btn disabled" data-xeokit-i18n="storeysExplorer.showAll" data-xeokit-i18ntip="storeysExplorer.showAllTip" data-tippy-content="Show all storeys">Show all</button>
-                <button type="button" class="xeokit-i18n xeokit-hideAllStoreys xeokit-btn disabled" data-xeokit-i18n="storeysExplorer.hideAll" data-xeokit-i18ntip="storeysExplorer.hideAllTip" data-tippy-content="Hide all storeys">Hide all</button>
+            <div class="xeokit-btn-group">
+                    <button type="button" class="xeokit-i18n xeokit-showAllStoreys xeokit-btn disabled" data-xeokit-i18n="storeysExplorer.showAll" data-xeokit-i18ntip="storeysExplorer.showAllTip" data-tippy-content="Show all storeys">Show all</button>
+                    <button type="button" class="xeokit-i18n xeokit-hideAllStoreys xeokit-btn disabled" data-xeokit-i18n="storeysExplorer.hideAll" data-xeokit-i18ntip="storeysExplorer.hideAllTip" data-tippy-content="Hide all storeys">Hide all</button>
             </div>
-             <div class="xeokit-storeys xeokit-tree-panel"></div>
+            <div class="xeokit-storeys xeokit-tree-panel"></div>
         </div>
     </div>
 </div>`;
@@ -84,6 +85,7 @@ function createToolbarTemplate(cfg, viewer) {
     const toolbarTemplate = `<div class="xeokit-toolbar">
     <!-- Reset button -->
     <div class="xeokit-btn-group">
+        <button type="button" class="xeokit-i18n xeokit-toggle-menu xeokit-btn fa fa-bars fa-2x disabled" data-tippy-content="Toggle menu"></button>
         <button type="button" class="xeokit-i18n xeokit-reset xeokit-btn fa fa-home fa-2x disabled" data-xeokit-i18ntip="toolbar.resetViewTip" data-tippy-content="Reset view"></button>
     </div>
     <div class="xeokit-btn-group" role="group">
@@ -110,6 +112,13 @@ function createToolbarTemplate(cfg, viewer) {
             <div class="xeokit-i18n xeokit-section-counter" data-xeokit-i18ntip="toolbar.numSlicesTip" data-tippy-content="Number of existing slices"></div>
         </button>
     </div>
+    <div class="xeokit-btn-group" role="group">
+        <!-- Fullscreen button -->
+        <button type="button" class="xeokit-fullscreen xeokit-btn fa fa-expand fa-2x disabled" data-tippy-content="Fullscreen"></button>
+        <button type="button" class="xeokit-instap-navigate-to-instap xeokit-btn fa fa-info-circle fa-2x disabled" data-tippy-content="Navigate-to-instap"></button>
+        <button type="button" class="xeokit-instap-info xeokit-btn fa fa-question-circle fa-2x disabled" data-tippy-content="Navigate-to-instap"></button>
+    </div>
+
 </div>`;
     return toolbarTemplate;
 }
@@ -190,6 +199,7 @@ class BIMViewer extends Controller {
         const explorerElement = cfg.explorerElement;
         const toolbarElement = cfg.toolbarElement;
         const navCubeCanvasElement = cfg.navCubeCanvasElement;
+        const bimWrapperElement = cfg.bimWrapperElement;
         const busyModelBackdropElement = cfg.busyModelBackdropElement;
 
         explorerElement.oncontextmenu = (e) => {
@@ -342,6 +352,27 @@ class BIMViewer extends Controller {
             active: false
         });
 
+        this._fullscreenMode = new FullscreenMode(this, {
+            buttonElement: toolbarElement.querySelector(".xeokit-fullscreen"),
+            bimWrapperElement: bimWrapperElement,
+            active: false
+        });
+
+        this._navigateToInstap = new NavigateToInstap(this, {
+            buttonElement: toolbarElement.querySelector(".xeokit-instap-navigate-to-instap"),
+            active: false
+        });
+
+        this._toggleMenu = new Toggle(this, {
+            buttonElement: toolbarElement.querySelector(".xeokit-toggle-menu"),
+            active: false
+        });
+
+        this._instapInfo = new Toggle(this, {
+            buttonElement: toolbarElement.querySelector(".xeokit-instap-info"),
+            active: false
+        });
+
         this._navCubeMode = new NavCubeMode(this, {
             navCubeCanvasElement: navCubeCanvasElement,
             active: true
@@ -378,6 +409,26 @@ class BIMViewer extends Controller {
             this.fire("queryPicked", event);
         });
 
+        this._navigateToInstap.on("navigateToInstap", (event) => {
+            this.fire("navigateToInstap", event);
+        });
+
+        this._toggleMenu.on('active-toggle', (event) => {
+            this.fire("show-menu", event);
+        })
+
+        this._toggleMenu.on('unActive-toggle', (event) => {
+            this.fire("hide-menu", event);
+        })
+
+        this._instapInfo.on('active-toggle', (event) => {
+            this.fire("show-instap-info", event);
+        })
+
+        this._instapInfo.on('unActive-toggle', (event) => {
+            this.fire("hide-instap-info", event);
+        })
+
         this._queryTool.on("queryNotPicked", () => {
             this.fire("queryNotPicked", true);
         });
@@ -386,7 +437,7 @@ class BIMViewer extends Controller {
             this.fire("reset", true);
         });
 
-        this._mutexActivation([this._hideTool, this._selectionTool, this._sectionTool]);
+        this._mutexActivation([this._queryTool, this._hideTool, this._selectionTool, this._sectionTool]);
 
         explorerElement.querySelector(".xeokit-showAllObjects").addEventListener("click", (event) => {
             this.setAllObjectsVisible(true);
@@ -1756,6 +1807,10 @@ class BIMViewer extends Controller {
         this._firstPersonMode.setEnabled(enabled);
         this._queryTool.setEnabled(enabled);
         this._hideTool.setEnabled(enabled);
+        this._fullscreenMode.setEnabled(enabled);
+        this._toggleMenu.setEnabled(enabled);
+        this._instapInfo.setEnabled(enabled);
+        this._navigateToInstap.setEnabled(enabled);
         this._selectionTool.setEnabled(enabled);
         this._sectionTool.setEnabled(enabled);
     }
@@ -1832,4 +1887,5 @@ class BIMViewer extends Controller {
     }
 }
 
-export {BIMViewer};
+export { BIMViewer };
+

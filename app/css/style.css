@@ -14,7 +14,7 @@ body {
     overflow: hidden;
 }
 
-#myViewer {
+.myViewer {
     display: flex;
     width: 100%;
     height: 100%;
@@ -29,7 +29,7 @@ body {
     transition: all 300ms ease-in-out;
 }
 
-#myToolbar {
+.myToolbar {
     min-width: 400px;
     top: 0;
     align-items: center;
@@ -42,7 +42,7 @@ body {
     transition: all 300ms ease-in-out;
 }
 
-#myCanvas {
+.myCanvas {
     width: 100%;
     height: 100%;
     background: #f2f2f2;
@@ -52,7 +52,7 @@ body {
     position: relative;
 }
 
-#myNavCubeCanvas {
+.myNavCubeCanvas {
     position: absolute;
     width: 200px;
     height: 200px;
@@ -61,7 +61,7 @@ body {
     z-index: 200000;
 }
 
-#myExplorer {
+.myExplorer {
     position: fixed;
     height: 100%;
     color: #fff;
@@ -79,7 +79,7 @@ body {
     transition: all 300ms ease-in-out;
 }
 
-#explorer_toggle {
+.explorer_toggle {
     display: none;
 }
 
@@ -112,49 +112,49 @@ body {
     cursor: pointer;
 }
 
-#explorer_toggle:checked + .explorer_toggle_label {
+.explorer_toggle:checked + .explorer_toggle_label {
     left: 480px;
     color: #fff;
     background-color: #03103F;
     border-color: #03103F;
 }
 
-#explorer_toggle:checked ~ #myExplorer {
+.explorer_toggle:checked ~ #myExplorer {
     left: 0;
 }
 
-#explorer_toggle:checked ~ #myViewer {
+.explorer_toggle:checked ~ #myViewer {
     left: 460px;
     --left: 460;
     width: calc(100% - (var(--left) + var(--right)));
 }
 
-#explorer_toggle:checked ~ #myToolbar {
+.explorer_toggle:checked ~ #myToolbar {
     left: 555px;
 }
 
-#explorer_toggle:not(:checked) + .explorer_toggle_label {
+.explorer_toggle:not(:checked) + .explorer_toggle_label {
     left: 20px;
     color: #fff;
     background-color: #03103F;
     border-color: #03103F;
 }
 
-#explorer_toggle:not(:checked) ~ #myExplorer {
+.explorer_toggle:not(:checked) ~ #myExplorer {
     left: -460px;
 }
 
-#explorer_toggle:not(:checked) ~ #myViewer {
+.explorer_toggle:not(:checked) ~ #myViewer {
     left: 0;
     --left: 0;
     width: calc(100% - var(--right));
 }
 
-#explorer_toggle:not(:checked) ~ #myToolbar {
+.explorer_toggle:not(:checked) ~ #myToolbar {
     left: 95px;
 }
 
-#myInspector {
+.myInspector {
     position: absolute;
     height: 100%;
     color: #CFCFCF;
@@ -168,13 +168,13 @@ body {
     transition: all 300ms ease-in-out;
 }
 
-#myInspector .title {
+.myInspector .title {
     font-size: 20px;
     font-weight: normal;
     padding-left:10px;
 }
 
-#inspector_toggle {
+.inspector_toggle {
     display: none;
 }
 
@@ -208,30 +208,30 @@ body {
     cursor: pointer;
 }
 
-#inspector_toggle:checked + .inspector_toggle_label {
+.inspector_toggle:checked + .inspector_toggle_label {
     right: 380px;
     color: #fff;
     background-color: #03103F;
     border-color: #03103F;
 }
 
-#inspector_toggle:checked ~ #myViewer {
+.inspector_toggle:checked ~ #myViewer {
     --right: 360;
     right:360px;
     width: calc(100% - (var(--left) + var(--right)));
 }
 
-#inspector_toggle:checked ~ #myInspector {
+.inspector_toggle:checked ~ #myInspector {
     right: 0;
     --right: 0;
 }
 
-#inspector_toggle:not(:checked) ~ #myInspector {
+.inspector_toggle:not(:checked) ~ #myInspector {
     right: -380px;
     --right: -380px;
 }
 
-#inspector_toggle:not(:checked) ~ #myViewer {
+.inspector_toggle:not(:checked) ~ #myViewer {
     --right: 0;
     right: 0;
     width: calc(100% - var(--left));
