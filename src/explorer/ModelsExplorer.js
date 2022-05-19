@@ -265,7 +265,7 @@ class ModelsExplorer extends Controller {
                     xkt: arraybuffer,
                     objectDefaults: objectDefaults,
                     excludeUnclassifiedObjects: true,
-                    position: modelInfo.position,
+                    origin: modelInfo.origin || modelInfo.position,
                     scale: modelInfo.scale,
                     rotation: modelInfo.rotation,
                     matrix: modelInfo.matrix,
@@ -273,7 +273,8 @@ class ModelsExplorer extends Controller {
                     saoEnabled: modelInfo.saoEnabled,
                     pbrEnabled: modelInfo.pbrEnabled,
                     backfaces: modelInfo.backfaces,
-                    excludeTypes: ["IfcSpace"]
+                    globalizeObjectIds: modelInfo.globalizeObjectIds,
+                    reuseGeometries: (modelInfo.reuseGeometries !== false)
                 });
                 model.on("loaded", () => {
                     const checkbox = document.getElementById("" + modelId);

@@ -5,6 +5,8 @@
 
 [![Screenshot](https://github.com/xeokit/xeokit-bim-viewer/raw/master/images/xeokit-bim-viewer.png)](https://xeokit.github.io/xeokit-bim-viewer/app/index.html?projectId=OTCConferenceCenter&tab=storeys)
 
+* [Run demo](https://xeokit.github.io/xeokit-bim-viewer/app/index.html?projectId=OTCConferenceCenter&tab=storeys)
+
 ---
 
 **[xeokit-bim-viewer](https://github.com/xeokit/xeokit-bim-viewer)** is an open source 2D/3D BIM viewer that runs in the
@@ -276,6 +278,9 @@ with [````BIMViewer#setConfigs()````](https://xeokit.github.io/xeokit-bim-viewer
 | "perspectiveFOV"      | Number            | ````[10.0...70.0]```` | ````55````        | When in perspective projection, this is the field of view, in degrees, that the user sees |
 | "objectColorSource"   | String            | "model", "viewer"     | "model"           | Where the colors for model objects will be loaded from |
 | "externalMetadata"    | Boolean           |                       | ````false````     | Whether to load a metadata.json file with each geometry.xkt file |
+| "xrayPickable"        | Boolean           |                       | ````false````     | Whether we can interact with X-rayed objects using mouse/touch input |
+| "selectedGlowThrough" | Boolean           |                       | ````true````      | Whether selected objects appear to "glow through" other objects |
+| "highlightGlowThrough" | Boolean           |                       | ````true````      | Whether highlighted objects appear to "glow through" other objects |
 
 ### Viewer States
 
@@ -392,8 +397,7 @@ new  ````externalMetadata: true```` configuration to the ````viewerConfigs```` i
 
 > **This section goes deeper into the viewer, describing how to instantiate a viewer, and how to use its JavaScript programming API.**
 
-The viewer is implemented by the
-JavaScript [````BIMViewer````](https://xeokit.github.io/xeokit-bim-viewer/docs/class/src/BIMViewer.js~BIMViewer.html)
+The viewer is implemented by the JavaScript [````BIMViewer````](https://xeokit.github.io/xeokit-bim-viewer/docs/class/src/BIMViewer.js~BIMViewer.html)
 class, which provides a complete set of methods to programmatically control it.
 
 Using these methods, we can:
@@ -934,11 +938,13 @@ configurations in there so that we can see through them.
 ### Localizing a Viewer
 
 The easiest way to localize a BIMViewer is by loading translation strings into its locale service, which is implemented 
-by a xeokit [LocaleService](http://localhost:8080/docs/class/src/viewer/localization/LocaleService.js~LocaleService.html). 
+by a xeokit [LocaleService](https://xeokit.github.io/xeokit-sdk/docs/class/src/viewer/localization/LocaleService.js~LocaleService.html). 
 
 The snippet below shows how it's done, using a partial set of the translations expected by the components
 within the BIMViewer. We'll just show the translations for the faces of the NavCube. We'll also load the translations 
 inline, rather than fetch them from a separate JSON file, as we would in practice.
+
+We call translations "messages". Our metaphor is that the UI "conveys messages to the user". 
 
 To see all the translations expected by a BIMViewer, take a look at the translations we've configured for the bundled BIMViewer 
 demo application:  [````/app/locales/messages.js````](/app/locales/messages.js).  
@@ -1040,5 +1046,6 @@ To build the API documentation in ````/docs/````:
 ````
 npm run docs
 ````
+
 
 

@@ -1,37 +1,36 @@
-import {
-    BCFViewpointsPlugin,
-    FastNavPlugin,
-    Viewer,
-    math
-} from "@xeokit/xeokit-sdk/dist/xeokit-sdk.es.js";
+import {BCFViewpointsPlugin, FastNavPlugin, math, stats, Viewer,} from "@xeokit/xeokit-sdk/dist/xeokit-sdk.es.js";
 
-import { BusyModal } from "./BusyModal.js";
-import { CanvasContextMenu } from "./contextMenus/CanvasContextMenu.js";
-import { ClassesExplorer } from "./explorer/ClassesExplorer.js";
-import { Controller } from "./Controller.js";
-import { FirstPersonMode } from "./toolbar/FirstPersonMode.js";
-import { FitAction } from "./toolbar/FitAction.js";
-import { FullscreenMode } from "./toolbar/FullscreenMode.js";
-import { HideTool } from "./toolbar/HideTool.js";
-import { ModelsExplorer } from "./explorer/ModelsExplorer.js";
-import { NavCubeMode } from "./toolbar/NavCubeMode.js";
-import { NavigateToInstap } from "./toolbar/NavigateToInstap";
-import { ObjectContextMenu } from "./contextMenus/ObjectContextMenu.js";
-import { ObjectsExplorer } from "./explorer/ObjectsExplorer.js";
-import { OrthoMode } from "./toolbar/OrthoMode.js";
-import { QueryTool } from "./toolbar/QueryTool.js";
-import { ResetAction } from "./toolbar/ResetAction.js";
-import { SectionTool } from "./toolbar/SectionTool.js";
-import { SelectionTool } from "./toolbar/SelectionTool.js";
-import { StoreysExplorer } from "./explorer/StoreysExplorer.js";
-import { ThreeDMode } from "./toolbar/ThreeDMode.js";
-import { Toggle } from "./toolbar/Toggle";
+import {Controller} from "./Controller.js";
+import {BusyModal} from "./BusyModal.js";
+import {ResetAction} from "./toolbar/ResetAction.js";
+import {FitAction} from "./toolbar/FitAction.js";
+import {FirstPersonMode} from "./toolbar/FirstPersonMode.js";
+import {HideTool} from "./toolbar/HideTool.js";
+import {SelectionTool} from "./toolbar/SelectionTool.js";
+import {QueryTool} from "./toolbar/QueryTool.js";
+import {SectionTool} from "./toolbar/SectionTool.js";
+import {NavCubeMode} from "./toolbar/NavCubeMode.js";
 
-function createExplorerTemplate(cfg, viewer) {
-    function translate(key, fallback) {
-        return viewer.localeService.translate(key) || fallback;
-    }
+import {ModelsExplorer} from "./explorer/ModelsExplorer.js";
+import {ObjectsExplorer} from "./explorer/ObjectsExplorer.js";
+import {ClassesExplorer} from "./explorer/ClassesExplorer.js";
+import {StoreysExplorer} from "./explorer/StoreysExplorer.js";
 
+import {ThreeDMode} from "./toolbar/ThreeDMode.js";
+import {ObjectContextMenu} from "./contextMenus/ObjectContextMenu.js";
+import {CanvasContextMenu} from "./contextMenus/CanvasContextMenu.js";
+import {OrthoMode} from "./toolbar/OrthoMode.js";
+import {PropertiesInspector} from "./inspector/PropertiesInspector.js";
+
+import {FullscreenMode} from "./toolbar/FullscreenMode.js";
+import {NavigateToInstap} from "./toolbar/NavigateToInstap";
+import {Toggle} from "./toolbar/Toggle";
+import {ShowSpacesMode} from "./toolbar/ShowSpacesMode.js";
+
+const hideEdgesMinDrawCount = 5; // FastNavPlugin enables dynamic edges when xeokit's per-frame draw count drops below this
+const scaleCanvasResolutionMinDrawCount = 1000; // FastNavPlugin switches to low-res canvas when xeokit's per-frame draw count rises above this
+
+function createExplorerTemplate(cfg) {
     const explorerTemplate = `<div class="xeokit-tabs"> 
     <div class="xeokit-tab xeokit-modelsTab">
         <a class="xeokit-i18n xeokit-tab-btn" href="#" data-xeokit-i18n="modelsExplorer.title">Models</a>
@@ -77,11 +76,7 @@ function createExplorerTemplate(cfg, viewer) {
     return explorerTemplate;
 }
 
-function createToolbarTemplate(cfg, viewer) {
-    function translate(key, fallback) {
-        return viewer.localeService.translate(key) || fallback;
-    }
-
+function createToolbarTemplate() {
     const toolbarTemplate = `<div class="xeokit-toolbar">
     <!-- Reset button -->
     <div class="xeokit-btn-group">
@@ -97,6 +92,8 @@ function createToolbarTemplate(cfg, viewer) {
         <button type="button" class="xeokit-i18n xeokit-fit xeokit-btn fa fa-crop fa-2x disabled" data-xeokit-i18ntip="toolbar.viewFitTip" data-tippy-content="View fit"></button>
         <!-- First Person mode button -->
         <button type="button" class="xeokit-i18n xeokit-firstPerson xeokit-btn fa fa-male fa-2x disabled" data-xeokit-i18ntip="toolbar.firstPersonTip" data-tippy-content="Toggle first-person mode"></button>
+          <!-- Show/hide IFCSpaces -->
+        <button type="button" class="xeokit-i18n xeokit-showSpaces xeokit-btn fab fa-codepen fa-2x disabled" data-xeokit-i18ntip="toolbar.showSpacesTip" data-tippy-content="Show IFCSpaces"></button>   
     </div>
     <!-- Tools button group -->
     <div class="xeokit-btn-group" role="group">
@@ -121,6 +118,18 @@ function createToolbarTemplate(cfg, viewer) {
 
 </div>`;
     return toolbarTemplate;
+}
+
+function createInspectorTemplate() {
+    const inspectorTemplate = `<div class="xeokit-tabs">  
+    <div class="xeokit-tab xeokit-propertiesTab">
+        <a class="xeokit-i18n xeokit-tab-btn disabled" href="#" data-xeokit-i18n="propertiesInspector.title">Properties</a>
+        <div class="xeokit-tab-content">        
+        <div class="xeokit-properties"></div>
+        </div>
+    </div>
+</div>`;
+    return inspectorTemplate;
 }
 
 function initTabs(containerElement) {
@@ -163,6 +172,7 @@ function initTabs(containerElement) {
     }
 }
 
+
 /**
  * @desc A BIM viewer based on the [xeokit SDK](http://xeokit.io).
  *
@@ -175,7 +185,7 @@ class BIMViewer extends Controller {
      * @param {Server} server Data access strategy.
      * @param {*} cfg Configuration.
      * @param {Boolean} [cfg.enableEditModels=false] Set ````true```` to show "Add", "Edit" and "Delete" options in the Models tab's context menu.
-     * @param {Boolean} [cfg.enableQueryObjects=false] TODO.
+     * @param {Boolean} [cfg.keyboardEventsElement] Optional reference to HTML element on which key events should be handled. Defaults to the HTML Document.
      */
     constructor(server, cfg = {}) {
 
@@ -197,6 +207,7 @@ class BIMViewer extends Controller {
 
         const canvasElement = cfg.canvasElement;
         const explorerElement = cfg.explorerElement;
+        const inspectorElement = cfg.inspectorElement;
         const toolbarElement = cfg.toolbarElement;
         const navCubeCanvasElement = cfg.navCubeCanvasElement;
         const bimWrapperElement = cfg.bimWrapperElement;
@@ -217,6 +228,7 @@ class BIMViewer extends Controller {
         const viewer = new Viewer({
             localeService: cfg.localeService,
             canvasElement: canvasElement,
+            keyboardEventsElement: cfg.keyboardEventsElement,
             transparent: false,
             backgroundColor: [1, 1, 1],
             backgroundColorFromAmbientLight: false,
@@ -229,7 +241,7 @@ class BIMViewer extends Controller {
         this._configs = {};
 
         this._enableAddModels = !!cfg.enableEditModels;
-        this._enableQueryObjects = !!cfg.enableQueryObjects;
+        this._enablePropertiesInspector = !!cfg.inspectorElement;
 
         /**
          * The xeokit [Viewer](https://xeokit.github.io/xeokit-sdk/docs/class/src/viewer/Viewer.js~Viewer.html) at the core of this BIMViewer.
@@ -241,12 +253,19 @@ class BIMViewer extends Controller {
         this._customizeViewer();
         this._initCanvasContextMenus();
 
-        explorerElement.innerHTML = createExplorerTemplate(cfg, viewer);
-        toolbarElement.innerHTML = createToolbarTemplate(cfg, viewer);
+        explorerElement.innerHTML = createExplorerTemplate(cfg);
+        toolbarElement.innerHTML = createToolbarTemplate();
+        if (this._enablePropertiesInspector) {
+            inspectorElement.innerHTML = createInspectorTemplate();
+        }
 
         this._explorerElement = explorerElement;
+        this._inspectorElement = inspectorElement;
 
         initTabs(explorerElement);
+        if (this._enablePropertiesInspector) {
+            initTabs(inspectorElement);
+        }
 
         this._modelsExplorer = new ModelsExplorer(this, {
             modelsTabElement: explorerElement.querySelector(".xeokit-modelsTab"),
@@ -277,6 +296,13 @@ class BIMViewer extends Controller {
             hideAllStoreysButtonElement: explorerElement.querySelector(".xeokit-hideAllStoreys"),
             storeysElement: explorerElement.querySelector(".xeokit-storeys")
         });
+
+        if (this._enablePropertiesInspector) {
+            this._propertiesInspector = new PropertiesInspector(this, {
+                propertiesTabElement: inspectorElement.querySelector(".xeokit-propertiesTab"),
+                propertiesElement: inspectorElement.querySelector(".xeokit-properties")
+            });
+        }
 
         this._resetAction = new ResetAction(this, {
             buttonElement: toolbarElement.querySelector(".xeokit-reset"),
@@ -337,6 +363,11 @@ class BIMViewer extends Controller {
 
         this._selectionTool = new SelectionTool(this, {
             buttonElement: toolbarElement.querySelector(".xeokit-select"),
+            active: false
+        });
+
+        this._showSpacesMode = new ShowSpacesMode(this, {
+            buttonElement: toolbarElement.querySelector(".xeokit-showSpaces"),
             active: false
         });
 
@@ -493,10 +524,32 @@ class BIMViewer extends Controller {
 
         this._bcfViewpointsPlugin = new BCFViewpointsPlugin(this.viewer, {});
 
-        this._fastNavPlugin = new FastNavPlugin(viewer, {});
+        this._fastNavPlugin = new FastNavPlugin(viewer, {
+            hideEdges: true,
+            hideSAO: true,
+            hidePBR: false,
+            hideTransparentObjects: false,
+            scaleCanvasResolution: false,
+            scaleCanvasResolutionFactor: 0.6
+        });
+
+        this.viewer.scene.on("rendered", () => {
+            const fastNavPlugin = this._fastNavPlugin;
+            fastNavPlugin.hideEdges = (hideEdgesMinDrawCount < (stats.frame.drawElements + stats.frame.drawArrays));
+            fastNavPlugin.scaleCanvasResolution = (scaleCanvasResolutionMinDrawCount < (stats.frame.drawElements + stats.frame.drawArrays));
+        });
 
         this._initConfigs();
         this.setControlsEnabled(false);
+    }
+
+    /**
+     * Returns the LocaleService that was configured on this Viewer.
+     *
+     * @return {LocaleService} The LocaleService.
+     */
+    get localeService() {
+        return this.viewer.localeService;
     }
 
     _customizeViewer() {
@@ -572,7 +625,7 @@ class BIMViewer extends Controller {
             const event = e.event;
 
             const hit = this.viewer.scene.pick({
-                canvasPos: [event.offsetX, event.offsetY]
+                canvasPos: e.canvasPos
             });
 
             if (hit && hit.entity.isObject) {
@@ -590,14 +643,14 @@ class BIMViewer extends Controller {
                     },
                     entity: hit.entity
                 };
-                this._objectContextMenu.show(event.pageX, event.pageY);
+                this._objectContextMenu.show(e.pagePos[0], e.pagePos[1]);
             } else {
                 this._objectContextMenu.hide();
                 this._canvasContextMenu.context = {
                     viewer: this.viewer,
                     bimViewer: this
                 };
-                this._canvasContextMenu.show(event.pageX, event.pageY);
+                this._canvasContextMenu.show(e.pagePos[0], e.pagePos[1]);
             }
         });
     }
@@ -615,19 +668,13 @@ class BIMViewer extends Controller {
             "saoKernelRadius": "100",
             "edgesEnabled": true,
             "xrayContext": true,
+            "xrayPickable": false,
+            "selectedGlowThrough": true,
+            "highlightGlowThrough": true,
             "backgroundColor": [1.0, 1.0, 1.0],
             "objectColorSource": "model",
             "externalMetadata": false
         });
-    }
-
-    /**
-     * Returns the LocaleService that was configured on this Viewer.
-     *
-     * @return {LocaleService} The LocaleService.
-     */
-    get localeService() {
-        return this.viewer.localeService;
     }
 
     /**
@@ -746,8 +793,33 @@ class BIMViewer extends Controller {
                     this._configs[name] = value;
                     break;
 
+                case "xrayPickable":
+                    this._configs[name] = parseBool(value);
+                    break;
+
+                case "selectedGlowThrough":
+                    const selectedGlowThrough = this._configs[name] = parseBool(value);
+                    const selectedMaterial = this.viewer.scene.selectedMaterial;
+                    selectedMaterial.glowThrough = selectedGlowThrough;
+                    selectedMaterial.fillAlpha = selectedGlowThrough ? 0.5 : 1.0;
+                    selectedMaterial.edgeAlpha = selectedGlowThrough ? 0.5 : 1.0;
+                    break;
+
+                case "highlightGlowThrough":
+                    const highlightGlowThrough = this._configs[name] = parseBool(value);
+                    const highlightMaterial = this.viewer.scene.highlightMaterial;
+                    highlightMaterial.glowThrough = highlightGlowThrough;
+                    highlightMaterial.fillAlpha = highlightGlowThrough ? 0.5 : 1.0;
+                    highlightMaterial.edgeAlpha = highlightGlowThrough ? 0.5 : 1.0;
+                    break;
+
                 case "externalMetadata":
                     this._configs[name] = parseBool(value);
+                    break;
+
+                case "showSpaces":
+                    this._configs[name] = parseBool(value);
+                    this._showSpacesMode.setActive(value);
                     break;
 
                 default:
@@ -1169,6 +1241,7 @@ class BIMViewer extends Controller {
         this._objectsExplorer.showNodeInTreeView(objectId);
         this._classesExplorer.showNodeInTreeView(objectId);
         this._storeysExplorer.showNodeInTreeView(objectId);
+        this.fire("openExplorer", {});
     }
 
     /**
@@ -1182,6 +1255,22 @@ class BIMViewer extends Controller {
         this._objectsExplorer.unShowNodeInTreeView();
         this._classesExplorer.unShowNodeInTreeView();
         this._storeysExplorer.unShowNodeInTreeView();
+    }
+
+    /**
+     * Shows the properties of the given object in the Properties tab.
+     *
+     * @param {String} objectId ID of the object
+     */
+    showObjectProperties(objectId) {
+        if (!objectId) {
+            this.error("showObjectInExplorers() - Argument expected: objectId");
+            return;
+        }
+        if (this._enablePropertiesInspector) {
+            this._propertiesInspector.showObjectPropertySets(objectId);
+        }
+        this.fire("openInspector", {});
     }
 
     /**
@@ -1487,8 +1576,9 @@ class BIMViewer extends Controller {
      *
      *  * "models" - the Models tab, which lists the models available within the currently loaded project,
      *  * "objects" - the Objects tab, which contains a tree view for each loaded model, organized to indicate the containment hierarchy of their objects,
-     *  * "classes" - the Classes tab, which contains a tree view for each loaded model, with nodes grouped by IFC types of their objects, and
-     *  * "storeys" - the Storeys tab, which contains a tree view for each loaded model, with nodes grouped within ````IfcBuildingStoreys````, sub-grouped by their IFC types.
+     *  * "classes" - the Classes tab, which contains a tree view for each loaded model, with nodes grouped by IFC types of their objects,
+     *  * "storeys" - the Storeys tab, which contains a tree view for each loaded model, with nodes grouped within ````IfcBuildingStoreys````, sub-grouped by their IFC types, and
+     *  * "properties" - the Properties tab, which shows property sets for a given object.
      *
      * @param {String} tabId ID of the tab to open - see method description.
      */
@@ -1497,8 +1587,6 @@ class BIMViewer extends Controller {
             this.error("openTab() - Argument expected: tabId");
             return;
         }
-        const tabClass = 'xeokit-tab';
-        const activeClass = 'active';
         let tabSelector;
         switch (tabId) {
             case "models":
@@ -1513,12 +1601,22 @@ class BIMViewer extends Controller {
             case "storeys":
                 tabSelector = "xeokit-storeysTab";
                 break;
+            case "properties":
+                tabSelector = "xeokit-propertiesTab";
+                break;
             default:
                 this.error("openTab() - tab not recognized: '" + tabId + "'");
                 return;
         }
-        let tabs = this._explorerElement.querySelectorAll("." + tabClass);
-        let tab = this._explorerElement.querySelector("." + tabSelector);
+        this._openTab(this._explorerElement, tabSelector);
+        //     this._openTab(this._inspectorElement, tabSelector);
+    }
+
+    _openTab(element, tabSelector) {
+        const tabClass = 'xeokit-tab';
+        const activeClass = 'active';
+        let tabs = element.querySelectorAll("." + tabClass);
+        let tab = element.querySelector("." + tabSelector);
         for (let i = 0; i < tabs.length; i++) {
             let tabElement = tabs[i];
             if (tabElement.isEqualNode(tab)) {
@@ -1536,8 +1634,9 @@ class BIMViewer extends Controller {
      *
      *  * "models" - the Models tab, which lists the models available within the currently loaded project,
      *  * "objects" - the Objects tab, which contains a tree view for each loaded model, organized to indicate the containment hierarchy of their objects,
-     *  * "classes" - the Classes tab, which contains a tree view for each loaded model, with nodes grouped by IFC types of their objects, and
-     *  * "storeys" - the Storeys tab, which contains a tree view for each loaded model, with nodes grouped within ````IfcBuildingStoreys````, sub-grouped by their IFC types.
+     *  * "classes" - the Classes tab, which contains a tree view for each loaded model, with nodes grouped by IFC types of their objects,
+     *  * "storeys" - the Storeys tab, which contains a tree view for each loaded model, with nodes grouped within ````IfcBuildingStoreys````, sub-grouped by their IFC types,
+     *  * "properties" - the Properties tab, which shows property sets for a given object, and
      *  * "none" - no tab is open; this is unlikely, since one of the above tabs should be open at a any time, but here for robustness.
      */
     getOpenTab() {
@@ -1565,6 +1664,10 @@ class BIMViewer extends Controller {
         if (hasClass(storeysTab, activeClass)) {
             return "storeys";
         }
+        let propertiesTab = this._inspectorElement.querySelector(".xeokit-propertiesTab");
+        if (hasClass(propertiesTab, activeClass)) {
+            return "properties";
+        }
         return "none";
     }
 
@@ -1587,6 +1690,23 @@ class BIMViewer extends Controller {
         return this._threeDMode.getActive();
     }
 
+    /**
+     * Sets whether IFCSpace types are ever shown.
+     *
+     * @param {Boolean} shown Set true to allow IFCSpaces to be shown, else false to always keep them hidden.
+     */
+    setSpacesShown(shown) {
+        this._showSpacesMode.setActive(shown);
+    }
+
+    /**
+     * Gets whether the viewer allows IFCSpace types to be shown.
+     *
+     * @returns {boolean} True to allow IFCSpaces to be shown, else false to always keep them hidden.
+     */
+    getSpacesShown() {
+        return this._showSpacesMode.getActive();
+    }
 
     /**
      * Sets whether the viewer is in orthographic viewing mode.
@@ -1609,24 +1729,6 @@ class BIMViewer extends Controller {
      */
     getOrthoEnabled() {
         return this._orthoMode.getActive();
-    }
-
-    /**
-     * Sets whether query pick mode is active.
-     *
-     * @param {Boolean} enabled Set true to switch into query mode, else false.
-     */
-    setQueryEnabled(enabled) {
-        this._queryTool.setActive(enabled);
-    }
-
-    /**
-     * Gets whether query pick mode is active.
-     *
-     * @returns {boolean} True when in query mode, else false.
-     */
-    getQueryEnabled() {
-        return this._queryTool.getActive();
     }
 
     /**
@@ -1768,8 +1870,8 @@ class BIMViewer extends Controller {
             this.error("loadBCFViewpoint() - Argument expected: bcfViewpoint");
             return;
         }
-        this._bcfViewpointsPlugin.setViewpoint(bcfViewpoint, options);
         this._orthoMode.setActive(this.viewer.camera.projection === "ortho");
+        this._bcfViewpointsPlugin.setViewpoint(bcfViewpoint, options);
     }
 
     /**
@@ -1812,7 +1914,13 @@ class BIMViewer extends Controller {
         this._instapInfo.setEnabled(enabled);
         this._navigateToInstap.setEnabled(enabled);
         this._selectionTool.setEnabled(enabled);
+        this._showSpacesMode.setEnabled(enabled);
         this._sectionTool.setEnabled(enabled);
+
+        //
+        if (this._enablePropertiesInspector) {
+            this._propertiesInspector.setEnabled(enabled);
+        }
     }
 
     /**
@@ -1844,7 +1952,7 @@ class BIMViewer extends Controller {
     /**
      * Clears sections.
      *
-     * Sections are the sliceing planes, that we use to section models in order to see interior structures.
+     * Sections are the slicing planes, that we use to section models in order to see interior structures.
      */
     clearSections() {
         this._sectionTool.clear();
@@ -1866,7 +1974,7 @@ class BIMViewer extends Controller {
     }
 
     /**
-     * returns the number of sections that currently exist.
+     * Returns the number of sections that currently exist.
      *
      * sections are the sliceing planes, that we use to slice models in order to see interior structures.
      *

@@ -30,8 +30,6 @@
   <ul>
     
   <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/BIMViewer.js~BIMViewer.html">BIMViewer</a></span></span></li>
-<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#ifcelementdescriptions">IFCElementDescriptions</a><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-IFCElementDescriptions">IFCElementDescriptions</a></span></span></li>
-<li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#contextmenus">contextMenus</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/contextMenus/SectionToolContextMenu.js~SectionToolContextMenu.html">SectionToolContextMenu</a></span></span></li>
 <li data-ice="doc"><a data-ice="dirPath" class="nav-dir-path" href="identifiers.html#server">server</a><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/server/Server.js~Server.html">Server</a></span></span></li>
 </ul>
 </div>
@@ -40,6 +38,9 @@
 <div class="content" data-ice="content"><div data-ice="index" class="github-markdown"><h1 id="xeokit-bim-viewer">xeokit-bim-viewer</h1><p><a href="https://twitter.com/xeolabs"><img src="https://img.shields.io/twitter/follow/xeolabs?style=social" alt="Twitter Follow"></a> <a href="https://badge.fury.io/js/%40xeokit%2Fxeokit-bim-viewer"><img src="https://badge.fury.io/js/%40xeokit%2Fxeokit-bim-viewer.svg" alt="npm version"></a>
 <a href="https://www.jsdelivr.com/package/npm/@xeokit/xeokit-bim-viewer"><img src="https://data.jsdelivr.com/v1/package/npm/@xeokit/xeokit-bim-viewer/badge" alt></a></p>
 <p><a href="https://xeokit.github.io/xeokit-bim-viewer/app/index.html?projectId=OTCConferenceCenter&amp;tab=storeys"><img src="https://github.com/xeokit/xeokit-bim-viewer/raw/master/images/xeokit-bim-viewer.png" alt="Screenshot"></a></p>
+<ul>
+<li><a href="https://xeokit.github.io/xeokit-bim-viewer/app/index.html?projectId=OTCConferenceCenter&amp;tab=storeys">Run demo</a></li>
+</ul>
 <hr>
 <p><strong><a href="https://github.com/xeokit/xeokit-bim-viewer">xeokit-bim-viewer</a></strong> is an open source 2D/3D BIM viewer that runs in the
 browser and loads models from your file system.</p>
@@ -420,6 +421,27 @@ with <a href="https://xeokit.github.io/xeokit-bim-viewer/docs/class/src/BIMViewe
 <td style="text-align:left"><code>false</code></td>
 <td style="text-align:left">Whether to load a metadata.json file with each geometry.xkt file</td>
 </tr>
+<tr>
+<td style="text-align:left">&quot;xrayPickable&quot;</td>
+<td style="text-align:left">Boolean</td>
+<td style="text-align:left"></td>
+<td style="text-align:left"><code>false</code></td>
+<td style="text-align:left">Whether we can interact with X-rayed objects using mouse/touch input</td>
+</tr>
+<tr>
+<td style="text-align:left">&quot;selectedGlowThrough&quot;</td>
+<td style="text-align:left">Boolean</td>
+<td style="text-align:left"></td>
+<td style="text-align:left"><code>true</code></td>
+<td style="text-align:left">Whether selected objects appear to &quot;glow through&quot; other objects</td>
+</tr>
+<tr>
+<td style="text-align:left">&quot;highlightGlowThrough&quot;</td>
+<td style="text-align:left">Boolean</td>
+<td style="text-align:left"></td>
+<td style="text-align:left"><code>true</code></td>
+<td style="text-align:left">Whether highlighted objects appear to &quot;glow through&quot; other objects</td>
+</tr>
 </tbody>
 </table>
 <h3 id="viewer-states">Viewer States</h3><p>In <a href="#model-database">Model Database</a> we saw how a project can specify directives for how the viewer should set up the
@@ -567,8 +589,7 @@ new  <code>externalMetadata: true</code> configuration to the <code>viewerConfig
 <h2 id="programming-api">Programming API</h2><blockquote>
 <p><strong>This section goes deeper into the viewer, describing how to instantiate a viewer, and how to use its JavaScript programming API.</strong></p>
 </blockquote>
-<p>The viewer is implemented by the
-JavaScript <a href="https://xeokit.github.io/xeokit-bim-viewer/docs/class/src/BIMViewer.js~BIMViewer.html"><code>BIMViewer</code></a>
+<p>The viewer is implemented by the JavaScript <a href="https://xeokit.github.io/xeokit-bim-viewer/docs/class/src/BIMViewer.js~BIMViewer.html"><code>BIMViewer</code></a>
 class, which provides a complete set of methods to programmatically control it.</p>
 <p>Using these methods, we can:</p>
 <ul>
@@ -955,10 +976,11 @@ export {IFCObjectDefaults};</code>
 <p>Sometimes IFC models have opaque <code>IfcWindow</code> and <code>IfcSpace</code> elements, so it&apos;s a good idea to have
 configurations in there so that we can see through them.</p>
 <h3 id="localizing-a-viewer">Localizing a Viewer</h3><p>The easiest way to localize a BIMViewer is by loading translation strings into its locale service, which is implemented 
-by a xeokit <a href>I18nLocaleService</a>. </p>
+by a xeokit <a href="https://xeokit.github.io/xeokit-sdk/docs/class/src/viewer/localization/LocaleService.js~LocaleService.html">LocaleService</a>. </p>
 <p>The snippet below shows how it&apos;s done, using a partial set of the translations expected by the components
 within the BIMViewer. We&apos;ll just show the translations for the faces of the NavCube. We&apos;ll also load the translations 
 inline, rather than fetch them from a separate JSON file, as we would in practice.</p>
+<p>We call translations &quot;messages&quot;. Our metaphor is that the UI &quot;conveys messages to the user&quot;. </p>
 <p>To see all the translations expected by a BIMViewer, take a look at the translations we&apos;ve configured for the bundled BIMViewer 
 demo application:  <a href="/app/locales/messages.js"><code>/app/locales/messages.js</code></a>.  </p>
 <pre><code class="lang-javascript"><code class="source-code prettyprint">myBIMViewer.localeService.loadMessages({
