@@ -80,40 +80,40 @@ function createToolbarTemplate() {
     const toolbarTemplate = `<div class="xeokit-toolbar">
     <!-- Reset button -->
     <div class="xeokit-btn-group">
-        <button type="button" class="xeokit-i18n xeokit-toggle-menu xeokit-btn fa fa-bars fa-2x disabled" data-tippy-content="Toggle menu"></button>
-        <button type="button" class="xeokit-i18n xeokit-reset xeokit-btn fa fa-home fa-2x disabled" data-xeokit-i18ntip="toolbar.resetViewTip" data-tippy-content="Reset view"></button>
+        <button type="button" class="xeokit-i18n xeokit-toggle-menu xeokit-btn fa fa-bars fa-2x disabled" data-tippy-content="Menu"></button>
+        <button type="button" class="xeokit-i18n xeokit-reset xeokit-btn fa fa-home fa-2x disabled" data-xeokit-i18ntip="toolbar.resetViewTip" data-tippy-content="Resetuj widok"></button>
     </div>
     <div class="xeokit-btn-group" role="group">
         <!-- 3D Mode button -->
-        <button type="button" class="xeokit-i18n xeokit-threeD xeokit-btn fa fa-cube fa-2x disabled" data-xeokit-i18ntip="toolbar.toggle2d3dTip" data-tippy-content="Toggle 2D/3D"></button>
+        <button type="button" class="xeokit-i18n xeokit-threeD xeokit-btn fa fa-cube fa-2x disabled" data-xeokit-i18ntip="toolbar.toggle2d3dTip" data-tippy-content="Widok 2D/3D"></button>
         <!-- Perspective/Ortho Mode button -->
-        <button type="button" class="xeokit-i18n xeokit-ortho xeokit-btn fa fa-th fa-2x  disabled" data-xeokit-i18ntip="toolbar.togglePerspectiveTip" data-tippy-content="Toggle Perspective/Ortho"></button>
+        <button type="button" class="xeokit-i18n xeokit-ortho xeokit-btn fa fa-th fa-2x  disabled" data-xeokit-i18ntip="toolbar.togglePerspectiveTip" data-tippy-content="Widok Ortograficzny/Perspektywiczny"></button>
         <!-- Fit button -->
-        <button type="button" class="xeokit-i18n xeokit-fit xeokit-btn fa fa-crop fa-2x disabled" data-xeokit-i18ntip="toolbar.viewFitTip" data-tippy-content="View fit"></button>
+        <button type="button" class="xeokit-i18n xeokit-fit xeokit-btn fa fa-crop fa-2x disabled" data-xeokit-i18ntip="toolbar.viewFitTip" data-tippy-content="Dopasowanie do widoku"></button>
         <!-- First Person mode button -->
-        <button type="button" class="xeokit-i18n xeokit-firstPerson xeokit-btn fa fa-male fa-2x disabled" data-xeokit-i18ntip="toolbar.firstPersonTip" data-tippy-content="Toggle first-person mode"></button>
+        <button type="button" class="xeokit-i18n xeokit-firstPerson xeokit-btn fa fa-male fa-2x disabled" data-xeokit-i18ntip="toolbar.firstPersonTip" data-tippy-content="Widok perspektywy pierwszoosobowej"></button>
           <!-- Show/hide IFCSpaces -->
-        <button type="button" class="xeokit-i18n xeokit-showSpaces xeokit-btn fab fa-codepen fa-2x disabled" data-xeokit-i18ntip="toolbar.showSpacesTip" data-tippy-content="Show IFCSpaces"></button>   
+        <button type="button" class="xeokit-i18n xeokit-showSpaces xeokit-btn fab fa-codepen fa-2x disabled" data-xeokit-i18ntip="toolbar.showSpacesTip" data-tippy-content="Pokaż IFCSpaces"></button>   
     </div>
     <!-- Tools button group -->
     <div class="xeokit-btn-group" role="group">
         <!-- Hide tool button -->
-        <button type="button" class="xeokit-i18n xeokit-hide xeokit-btn fa fa-eraser fa-2x disabled" data-xeokit-i18ntip="toolbar.hideObjectsTip" data-tippy-content="Hide objects"></button>
+        <button type="button" class="xeokit-i18n xeokit-hide xeokit-btn fa fa-eraser fa-2x disabled" data-xeokit-i18ntip="toolbar.hideObjectsTip" data-tippy-content="Ukryj obiekt"></button>
         <!-- Select tool button -->
-        <button type="button" class="xeokit-i18n xeokit-select xeokit-btn fa fa-mouse-pointer fa-2x disabled" data-xeokit-i18ntip="toolbar.selectObjectsTip" data-tippy-content="Select objects"></button>    
+        <button type="button" class="xeokit-i18n xeokit-select xeokit-btn fa fa-mouse-pointer fa-2x disabled" data-xeokit-i18ntip="toolbar.selectObjectsTip" data-tippy-content="Zaznacz obiekt"></button>    
         <!-- section tool button -->
-        <button type="button" class="xeokit-i18n xeokit-section xeokit-btn fa fa-cut fa-2x disabled" data-xeokit-i18ntip="toolbar.sliceObjectsTip" data-tippy-content="Slice objects">
-            <div class="xeokit-i18n xeokit-section-menu-button disabled" data-xeokit-i18ntip="toolbar.slicesMenuTip"  data-tippy-content="Slices menu">
+        <button type="button" class="xeokit-i18n xeokit-section xeokit-btn fa fa-cut fa-2x disabled" data-xeokit-i18ntip="toolbar.sliceObjectsTip" data-tippy-content="Przekroje obiektów">
+            <div class="xeokit-i18n xeokit-section-menu-button disabled" data-xeokit-i18ntip="toolbar.slicesMenuTip"  data-tippy-content="Menu przekroi">
                 <span class="xeokit-arrow-down xeokit-section-menu-button-arrow"></span>
             </div>
-            <div class="xeokit-i18n xeokit-section-counter" data-xeokit-i18ntip="toolbar.numSlicesTip" data-tippy-content="Number of existing slices"></div>
+            <div class="xeokit-i18n xeokit-section-counter" data-xeokit-i18ntip="toolbar.numSlicesTip" data-tippy-content="Liczba przekroi"></div>
         </button>
     </div>
     <div class="xeokit-btn-group" role="group">
         <!-- Fullscreen button -->
-        <button type="button" class="xeokit-fullscreen xeokit-btn fa fa-expand fa-2x disabled" data-tippy-content="Fullscreen"></button>
-        <button type="button" class="xeokit-instap-navigate-to-instap xeokit-btn fa fa-info-circle fa-2x disabled" data-tippy-content="Navigate-to-instap"></button>
-        <button type="button" class="xeokit-instap-info xeokit-btn fa fa-question-circle fa-2x disabled" data-tippy-content="Navigate-to-instap"></button>
+        <button type="button" class="xeokit-fullscreen xeokit-btn fa fa-expand fa-2x disabled" data-tippy-content="Pełny ekran"></button>
+        <button type="button" class="xeokit-instap-navigate-to-instap xeokit-btn fa fa-info-circle fa-2x disabled" data-tippy-content="Przejdź do obiektu"></button>
+        <button type="button" class="xeokit-instap-info xeokit-btn fa fa-question-circle fa-2x disabled" data-tippy-content="Otwórz panel informacyjny"></button>
     </div>
 
 </div>`;
