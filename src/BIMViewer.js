@@ -233,7 +233,8 @@ class BIMViewer extends Controller {
             backgroundColor: [1, 1, 1],
             backgroundColorFromAmbientLight: false,
             saoEnabled: true,
-            pbrEnabled: true
+            pbrEnabled: false,
+            colorTextureEnabled: true
         });
 
         super(null, cfg, server, viewer);
@@ -528,6 +529,7 @@ class BIMViewer extends Controller {
             hideEdges: true,
             hideSAO: true,
             hidePBR: false,
+            hideColorTexture: false,
             hideTransparentObjects: false,
             scaleCanvasResolution: false,
             scaleCanvasResolutionFactor: 0.6
